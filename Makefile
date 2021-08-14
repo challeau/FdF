@@ -58,8 +58,7 @@ clean:
 	@make -C inc/libft clean
 	@make -C inc/minilibx-linux clean
 	@rm -f $(OBJ) $(OBJS_UTILS)
-	@rmdir $(OBJ_PATH) $(OBJS_UTILS_PATH)
-	@echo "Removing objs"
+	@rmdir $(OBJS_UTILS_PATH) $(OBJ_PATH)
 
 fclean: clean
 	@make -C inc/libft fclean

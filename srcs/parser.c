@@ -59,7 +59,6 @@ void	scale(t_vec3f ***map, t_data data)
 		j = 0;
 		while (j < data.map_width)
 		{
-			printf("%i:%i\n", i, j);
 			map[0][i][j].z += - data.min_z;
 			j++;
 		}
@@ -151,16 +150,6 @@ void	get_data(char *source_file, t_data *data)
 	assign_map(&map, file_content);
 	data->map = map;
 	get_z_limits(map, data);
-	printf("\t%d\n", data->map_height);
-	printf("\t%d\n", data->map_width);
-	for (int i = 0; map[i] ; i++)
-	{
-		for (int j = 0 ; j < width ; j++)
-		{
-			printf("(%.f,%.f,%.f) ", data->map[i][j].x,
-			       data->map[i][j].y, data->map[i][j].z);
-		}
-		printf("\n");
-	}
-
+//	printf("\t%d %d\n", data->min_z, data->max_z);
+//	printf("\t%d\n", data->map_width);
 }

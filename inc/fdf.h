@@ -11,8 +11,8 @@
 # include "libft/libft.h"
 # include "minilibx-linux/mlx.h"
 
-# define WIN_W 800
-# define WIN_H 600
+# define WIN_W 1000
+# define WIN_H 800
 # define ESC 0xff1b
 # define WHITE 0xFFFFFF
 # define BLACK 0x000000
@@ -153,6 +153,7 @@ t_vec4f	vec4f_mult_mat4(t_vec4f a, t_vec4f mat[4]);
 
 /* maths */
 float	fclampf(float value, float min, float max);
-
+int	min(int a, int b);
+int	max(int a, int b);
 
 #endif
