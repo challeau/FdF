@@ -12,7 +12,7 @@
 # include "minilibx-linux/mlx.h"
 
 # define WIN_W 800
-# define WIN_H 600
+# define WIN_H 500
 # define ESC 0xff1b
 # define WHITE 0xFFFFFF
 

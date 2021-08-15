@@ -15,37 +15,52 @@ static void	ft_memdel_map(t_vec3f **array)
 	array = NULL;
 }
 
+float	vec3f_magnitude(t_vec3f a, t_vec3f b)
+{
+	float	x;
+	float	y;
+	float	z;
+
+	x = (b.x - a.x) * (b.x - a.x);
+	y = (b.y - a.y) * (b.y - a.y);
+	z = (b.z - a.z) * (b.z - a.z);
+	return (sqrt(x + y + z));
+}
+
+void	iso_to_screen(t_vec3f *a, int scale1, int scale2)
+{
+	t_vec3f tmp = *a;
+	a->x = tmp.x * (scale1 / WIN_H / WIN_W) / scale2;
+	a->y = tmp.y * (scale1 / ) / scale2;
+}
+
 void	xy_to_iso(t_vec3f *a, t_vec3f *b)
 {
-//	t_vec3f		proj_mat[3];
-
 	t_vec3f tmp = *a;
-	a->x = (tmp.x - tmp.y) * cosf(0.5);//M_PI / 2);
-//	a->y = (tmp.x + tmp.y) * cosf(0.5);// - tmp.z;
+	a->x = (tmp.x - tmp.y) * cosf(0.5);
 	tmp = *b;
-	b->x = (tmp.x - tmp.y) * cosf(0.5);//M_PI / 2);
-//	b->y = (tmp.x + tmp.y) * cosf(0.5);// - tmp.z;
-
-	/* proj_mat[0] = (t_vec3f){sqrt(2)/2, -(sqrt(2)/2), 0}; */
-	/* proj_mat[1] = (t_vec3f){-(1/sqrt(6)), -(1/sqrt(6)), sqrt(2/3)}; */
-	/* proj_mat[2] = (t_vec3f){0,0,1}; */
-	/* *a = vec3f_mult_mat3(*a, proj_mat); */
-	/* *b = vec3f_mult_mat3(*b, proj_mat); */
+	b->x = (tmp.x - tmp.y) * cosf(0.5);
 }
 
 t_vec3f	scalev(t_vec3f a, t_data data)
 {
-	t_vec3f res;
-	int scale1 = min(WIN_H, WIN_W);
-	int scale2 = min(data.map_height, data.map_width);
+	t_vec3f res = a;
 
-	res.x = a.x  * (scale1 / 1.5) /  scale2;
-//	res.x += (WIN_W / 2);
-	res.y = a.y  * (scale1 / 1.5) /  scale2;
-	res.x += (WIN_H / 2);
-//	res.x = a.x * WIN_W / data.map_width;
-//	res.y = a.y *WIN_H / data.map_height;
- 	return (res);
+	if (data.map_width > data.map_height)
+	{
+		iso_to_screen(&res, WIN_W, data.map_width);
+		res.x += WIN_W / 2;
+	}
+	else
+	{
+		int tile_len = WIN_H / data.map_height;
+		iso_to_screen(&res, WIN_H, data.map_height);
+		if (data.map_height % 2 == 0)
+			res.x += WIN_W / 2;
+		else
+			res.x += WIN_W / 2 - 2 * tile_len;
+	}
+	return (res);
 }
 
 static bool	mlx_setup(t_mlx *mlx)

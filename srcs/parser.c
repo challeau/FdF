@@ -138,6 +138,6 @@ void	get_data(char *source_file, t_data *data)
 	assign_map(&map, file_content);
 	data->map = map;
 	get_z_limits(map, data);
-//	printf("%d/%d\n", data->map_width, data->map_height);
+	printf("%d/%d\n", data->map_width, data->map_height);
 //	print_map(map, data->map_width);
 }
