@@ -102,20 +102,6 @@ static char	**get_file_contents(int fd, int *width, int *height)
 	return (content);
 }
 
-void	print_map(t_vec3f **map, int w)
-{
-	for (int i = 0; map[i] ; i++)
-	{
-		for (int j = 0 ; j < w ; j++)
-		{
-			printf("(%.1f, %.1f, %.1f)  ", map[i][j].x,
-			       map[i][j].y, map[i][j].z);
-		}
-		printf("\n");
-	}
-
-}
-
 void	get_data(char *source_file, t_data *data)
 {
 	int		fd;
@@ -138,6 +124,4 @@ void	get_data(char *source_file, t_data *data)
 	assign_map(&map, file_content);
 	data->map = map;
 	get_z_limits(map, data);
-	printf("%d/%d\n", data->map_width, data->map_height);
-//	print_map(map, data->map_width);
 }

@@ -14,6 +14,11 @@
 # define WIN_W 800
 # define WIN_H 500
 # define ESC 0xff1b
+#define LEFT                          0xff51  /* Move left, left arrow */
+#define UP                            0xff52  /* Move up, up arrow */
+#define RIGHT                         0xff53  /* Move right, right arrow */
+#define DOWN                          0xff54  /* Move down, down arrow */
+
 # define WHITE 0xFFFFFF
 
 /* vectors and matrices */
@@ -71,7 +76,15 @@ typedef struct s_data
 	int		max_z;
 }		t_data;
 
-int		esc_exit(int keycode, t_mlx *mlx);
+typedef struct s_env
+{
+	t_mlx mlx;
+	t_data data;
+}		t_env;
+
+int		esc_exit(t_mlx *mlx);
+void	ft_memdel_map(t_vec3f **array);
+int		handle_events(int keycode, void *env);
 void	error(char *err_str);
 
 void	get_data(char *source_file, t_data *data);

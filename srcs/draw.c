@@ -42,6 +42,8 @@ static void	draw_line_up(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
 			from.y += delta.y;
 		}
 	}
+			printf("down\n");
+
 }
 
 static void	draw_line(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
