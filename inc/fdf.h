@@ -75,7 +75,9 @@ int		esc_exit(int keycode, t_mlx *mlx);
 void	error(char *err_str);
 
 void	get_data(char *source_file, t_data *data);
-int		get_elem_nb(char *str);
+void	check_max_width(int *width, char *line);
+void	check_for_dents(char **data, t_vec3f ***map);
+int	get_elem_nb(char *str);
 
 t_vec3f	scalev(t_vec3f a, t_data data);
 void	xy_to_iso(t_vec3f *a, t_vec3f *b);

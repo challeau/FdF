@@ -45,6 +45,7 @@ static void	get_z_limits(t_vec3f **map, t_data *data)
 	data->min_z = min_buff;
 	if (min_buff < 0)
 		z_scale(&map, *data);
+	data->min_z = 0;
 }
 
 static void	assign_map(t_vec3f ***map, char **data)
@@ -68,6 +69,7 @@ static void	assign_map(t_vec3f ***map, char **data)
 		ft_memdel_strptr(tmp);
 		i++;
 	}
+	check_for_dents(data, map);
 	ft_memdel_strptr(data);
 }
 
@@ -80,12 +82,12 @@ static char	**get_file_contents(int fd, int *width, int *height)
 
 	i = 0;
 	ret = get_next_line(fd, &line);
-	*width = get_elem_nb(line);
 	content = (char **)malloc(1000 * sizeof(char *));
 	while (ret >= 0 && i < 999)
 	{
 		if (*line != '\0')
 		{
+			check_max_width(width, line);
 			*height += 1;
 			content[i++] = ft_strdup(line);
 			content[i] = NULL;
@@ -100,18 +102,20 @@ static char	**get_file_contents(int fd, int *width, int *height)
 	return (content);
 }
 
-/*
-** to print map:
-**	for (int i = 0; map[i] ; i++)
-**	{
-**		for (int j = 0 ; j < width ; j++)
-**		{
-**			printf("(%.1f, %.1f, %.1f)  ", data->map[i][j].x,
-**			       data->map[i][j].y, data->map[i][j].z);
-**		}
-**		printf("\n");
-**	}
-*/
+void	print_map(t_vec3f **map, int w)
+{
+	for (int i = 0; map[i] ; i++)
+	{
+		for (int j = 0 ; j < w ; j++)
+		{
+			printf("(%.1f, %.1f, %.1f)  ", map[i][j].x,
+			       map[i][j].y, map[i][j].z);
+		}
+		printf("\n");
+	}
+
+}
+
 void	get_data(char *source_file, t_data *data)
 {
 	int		fd;
@@ -122,6 +126,7 @@ void	get_data(char *source_file, t_data *data)
 
 	fd = open(source_file, O_RDONLY);
 	height = 0;
+	width = 0;
 	file_content = get_file_contents(fd, &width, &height);
 	close(fd);
 	data->map_width = width;
@@ -133,4 +138,6 @@ void	get_data(char *source_file, t_data *data)
 	assign_map(&map, file_content);
 	data->map = map;
 	get_z_limits(map, data);
+//	printf("%d/%d\n", data->map_width, data->map_height);
+//	print_map(map, data->map_width);
 }

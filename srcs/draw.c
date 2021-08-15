@@ -47,6 +47,8 @@ static void	draw_line_up(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
 static void	draw_line(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
 {
 	xy_to_iso(&a, &b);
+	if (a.x == b.x && a.y == b.y && a.z == b.z)
+		return ;
 	if (fabs(b.y - a.y) < fabs(b.x - a.x))
 	{
 		if (a.x > b.x)
@@ -63,15 +65,23 @@ static void	draw_line(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
 	}
 }
 
-static t_vec3f	give_depth(t_vec3f a)
+/*
+** smaller offset == higher peak
+*/
+static t_vec3f	give_depth(t_vec3f a, t_data data)
 {
 	t_vec3f	res;
+	int		offset;
 
-	res.x = a.x + cos(a.z / 10);
-	res.y = a.y + cos(a.z / 10);
+	offset = data.max_z / 2;
+	if (data.max_z <= 1)
+		offset = 10;
+	res.x = a.x + cos(a.z / offset);
+	res.y = a.y + cos(a.z / offset);
 	res.z = a.z;
 	return (res);
 }
+
 
 void	draw_map(t_mlx mlx, t_data data)
 {
@@ -85,15 +95,15 @@ void	draw_map(t_mlx mlx, t_data data)
 		p.y = 0;
 		while (p.y < data.map_width)
 		{
-			a = give_depth(data.map[p.x][p.y]);
+			a = give_depth(data.map[p.x][p.y], data);
 			if (p.y < data.map_width - 1)
 			{
-				b = give_depth(data.map[p.x][p.y + 1]);
+				b = give_depth(data.map[p.x][p.y + 1], data);
 				draw_line(mlx, data, a, b);
 			}
 			if (p.x < data.map_height - 1)
 			{
-				b = give_depth(data.map[p.x + 1][p.y]);
+				b = give_depth(data.map[p.x + 1][p.y], data);
 				draw_line(mlx, data, a, b);
 			}
 			p.y++;
