@@ -1,25 +1,77 @@
 #include "../inc/fdf.h"
 
-int	get_elem_nb(char *str)
+static void	z_scale(t_vec3f ***map, t_data data)
 {
 	int	i;
+	int	j;
 
 	i = 0;
-	while (*str)
+	while (map[0][i])
 	{
-		if (ft_char_isdigit(*str))
+		j = 0;
+		while (j < data.map_width)
 		{
-			i++;
-			while (ft_char_isdigit(*str))
-				str++;
+			map[0][i][j].z += -data.min_z;
+			j++;
 		}
-		else
-			str++;
+		i++;
 	}
-	return (i);
 }
 
-char	**get_file_contents(int fd, int *width, int *height)
+static void	get_z_limits(t_vec3f **map, t_data *data)
+{
+	int	i;
+	int	j;
+	int	max_buff;
+	int	min_buff;
+
+	i = 0;
+	max_buff = map[0][0].z;
+	min_buff = map[0][0].z;
+	while (map[i] != NULL)
+	{
+		j = 0;
+		while (j < data->map_width)
+		{
+			if (map[i][j].z > max_buff)
+				max_buff = map[i][j].z;
+			if (map[i][j].z < min_buff)
+				min_buff = map[i][j].z;
+			j++;
+		}
+		i++;
+	}
+	data->max_z = max_buff;
+	data->min_z = min_buff;
+	if (min_buff < 0)
+		z_scale(&map, *data);
+}
+
+static void	assign_map(t_vec3f ***map, char **data)
+{
+	int		i;
+	int		j;
+	char	**tmp;
+
+	i = 0;
+	while (data[i] && *data[i] != '\0')
+	{
+		j = 0;
+		tmp = ft_split(data[i], ' ');
+		while (tmp[j] && *tmp[j] != '\0')
+		{
+			map[0][i][j].x = j;
+			map[0][i][j].y = i;
+			map[0][i][j].z = ft_atoi(tmp[j]);
+			j++;
+		}
+		ft_memdel_strptr(tmp);
+		i++;
+	}
+	ft_memdel_strptr(data);
+}
+
+static char	**get_file_contents(int fd, int *width, int *height)
 {
 	int		i;
 	int		ret;
@@ -48,93 +100,24 @@ char	**get_file_contents(int fd, int *width, int *height)
 	return (content);
 }
 
-void	scale(t_vec3f ***map, t_data data)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (map[0][i])
-	{
-		j = 0;
-		while (j < data.map_width)
-		{
-			map[0][i][j].z += - data.min_z;
-			j++;
-		}
-		i++;
-	}
-}
-
-void	assign_map(t_vec3f ***map, char **data)
-{
-	int		i;
-	int		j;
-	char	**tmp;
-
-	i = 0;
-	while (data[i] && *data[i] != '\0')
-	{
-		j = 0;
-		tmp = ft_split(data[i], ' ');
-		while (tmp[j] && *tmp[j] != '\0')
-		{
-			map[0][i][j].x = j;
-			map[0][i][j].y = i;
-			map[0][i][j].z = ft_atoi(tmp[j]);
-			j++;
-		}
-		ft_memdel_strptr(tmp);
-		i++;
-	}
-	ft_memdel_strptr(data);
-}
-
-void	get_z_limits(t_vec3f **map, t_data *data)
-{
-	int	i;
-	int	j;
-	int	max_buff;
-	int	min_buff;
-
-	i = 0;
-	max_buff = map[0][0].z;
-	min_buff = map[0][0].z;
-	while (map[i] != NULL)
-	{
-		j = 0;
-		while (j < data->map_width)
-		{
-			if (map[i][j].z > max_buff)
-				max_buff = map[i][j].z;
-			if (map[i][j].z < min_buff)
-				min_buff = map[i][j].z;
-			j++;
-		}
-		i++;
-	}
-	data->max_z = max_buff;
-	data->min_z = min_buff;
-	if (min_buff < 0)
-		scale(&map, *data);
-}
-
-/* to print map: */
-/* 	for (int i = 0; map[i] ; i++) */
-/* 	{ */
-/* 		for (int j = 0 ; j < width ; j++) */
-/* 		{ */
-/* 			printf("(%.1f, %.1f, %.1f)  ", data->map[i][j].x, */
-/* 			       data->map[i][j].y, data->map[i][j].z); */
-/* 		} */
-/* 		printf("\n"); */
-/* 	} */
+/*
+** to print map:
+**	for (int i = 0; map[i] ; i++)
+**	{
+**		for (int j = 0 ; j < width ; j++)
+**		{
+**			printf("(%.1f, %.1f, %.1f)  ", data->map[i][j].x,
+**			       data->map[i][j].y, data->map[i][j].z);
+**		}
+**		printf("\n");
+**	}
+*/
 void	get_data(char *source_file, t_data *data)
 {
 	int		fd;
 	int		width;
 	int		height;
-	t_vec3f		**map;
+	t_vec3f	**map;
 	char	**file_content;
 
 	fd = open(source_file, O_RDONLY);
@@ -150,6 +133,4 @@ void	get_data(char *source_file, t_data *data)
 	assign_map(&map, file_content);
 	data->map = map;
 	get_z_limits(map, data);
-//	printf("\t%d %d\n", data->min_z, data->max_z);
-//	printf("\t%d\n", data->map_width);
 }

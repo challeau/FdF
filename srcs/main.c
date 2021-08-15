@@ -1,14 +1,29 @@
 #include "../inc/fdf.h"
 
+static void	ft_memdel_map(t_vec3f **array)
+{
+	t_vec3f	**array_ptr;
+
+	array_ptr = array;
+	while (*array_ptr != NULL)
+	{
+		free(*array_ptr);
+		*array_ptr = NULL;
+		array_ptr++;
+	}
+	free(array);
+	array = NULL;
+}
+
 void	xy_to_iso(t_vec3f *a, t_vec3f *b)
 {
 //	t_vec3f		proj_mat[3];
 
 	t_vec3f tmp = *a;
-	a->x = (tmp.x - tmp.y) * cosf(0.5);
+	a->x = (tmp.x - tmp.y) * cosf(0.5);//M_PI / 2);
 //	a->y = (tmp.x + tmp.y) * cosf(0.5);// - tmp.z;
 	tmp = *b;
-	b->x = (tmp.x - tmp.y) * cosf(0.5);
+	b->x = (tmp.x - tmp.y) * cosf(0.5);//M_PI / 2);
 //	b->y = (tmp.x + tmp.y) * cosf(0.5);// - tmp.z;
 
 	/* proj_mat[0] = (t_vec3f){sqrt(2)/2, -(sqrt(2)/2), 0}; */
@@ -18,113 +33,34 @@ void	xy_to_iso(t_vec3f *a, t_vec3f *b)
 	/* *b = vec3f_mult_mat3(*b, proj_mat); */
 }
 
-void	draw_line_down(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
+t_vec3f	scalev(t_vec3f a, t_data data)
 {
-	t_vec3f	from;
-	t_vec3f	to;
-	t_vec2f	delta;
-	
-	delta.x = (b.x - a.x);
-	delta.y = (b.y - a.y);
-
+	t_vec3f res;
 	int scale1 = min(WIN_H, WIN_W);
-	int scale2 = max(data.map_height, data.map_width);
+	int scale2 = min(data.map_height, data.map_width);
 
-	from = (t_vec3f){a.x * (scale1 / 2) / scale2,
-			 a.y * (scale1 / 2) / scale2, 0};
-	to = (t_vec3f){b.x * (scale1 / 2) / scale2,
-		       b.y * (scale1 / 2) / scale2, 0};
-
-	if (b.x <= data.map_width)
-	{
-		while (from.x <= to.x)
-		{
-			mlx_pixel_put(mlx.mlx_ptr, mlx.win_ptr, from.x, from.y, WHITE);
-			from.x += delta.x;
-			from.y += delta.y;
-		}
-	}
+	res.x = a.x  * (scale1 / 1.5) /  scale2;
+//	res.x += (WIN_W / 2);
+	res.y = a.y  * (scale1 / 1.5) /  scale2;
+	res.x += (WIN_H / 2);
+//	res.x = a.x * WIN_W / data.map_width;
+//	res.y = a.y *WIN_H / data.map_height;
+ 	return (res);
 }
 
-void	draw_line_up(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
+static bool	mlx_setup(t_mlx *mlx)
 {
-	t_vec3f	from;
-	t_vec3f	to;
-	t_vec2f	delta;
-
-	delta.x = (b.x - a.x);
-	delta.y = (b.y - a.y);
-
-
-	int scale1 = min(WIN_H, WIN_W);
-	int scale2 = max(data.map_height, data.map_width);
-
-	from = (t_vec3f){a.x * (scale1 / 2) / scale2,
-			 a.y * (scale1 / 2) / scale2, 0};
-	to = (t_vec3f){b.x * (scale1 / 2) / scale2,
-		       b.y * (scale1 / 2) / scale2, 0};
-
-	if (b.y <= data.map_height)
+	mlx->mlx_ptr = mlx_init();
+	if (mlx->mlx_ptr == NULL)
+		error("initialization error");
+	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, WIN_W, WIN_H, "FdF");
+	mlx->img_ptr = mlx_new_image(mlx->mlx_ptr, WIN_W, WIN_H);
+	if (mlx->win_ptr == NULL || mlx->img_ptr == NULL)
 	{
-		while (from.y <= to.y)
-		{
-			mlx_pixel_put(mlx.mlx_ptr, mlx.win_ptr, from.x, from.y, WHITE);
-			from.x += delta.x;
-			from.y += delta.y;
-		}
+		free(mlx->mlx_ptr);
+		return(false);
 	}
-}
-
-void	draw_line(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
-{
-	xy_to_iso(&a, &b);
-	if (fabs(b.y - a.y) < fabs(b.x - a.x))
-	{
-		if (a.x > b.x)
-			draw_line_down(mlx, data, b, a);
-		else
-			draw_line_down(mlx, data, a, b);
-	}
-	else
-	{
-		if (a.y > b.y)
-			draw_line_up(mlx, data, b, a);
-		else
-			draw_line_up(mlx, data, a, b);
-	}
-}
-
-void	draw_map(t_mlx mlx, t_data data)
-{
-	t_vec2i	p;
-	t_vec3f	a;
-	t_vec3f	b;
-
-	p = (t_vec2i){0, 0};
-	while (p.x < data.map_height)
-	{
-		p.y = 0;
-		while (p.y < data.map_width)
-		{
-			a = data.map[p.x][p.y];
-			a = vec3f_add_scal(a, cos(a.z /10));
-			if (p.y < data.map_width - 1)
-			{
-				b = data.map[p.x][p.y + 1];
-				if (p.y < data.map_width)
-					b = vec3f_add_scal(b, cos(b.z / 10));
-				draw_line(mlx, data, a, b);
-			}
-			if (p.x < data.map_height - 1)
-			{
-				b = data.map[p.x + 1][p.y];
-				b = vec3f_add_scal(b, cos(b.z / 10));
-				draw_line(mlx, data, a, b);
-			}
-			p.y++;
-		}
-		p.x++;
-	}
+	return (true);
 }
 
 int	main(int ac, char **av)
@@ -135,12 +71,12 @@ int	main(int ac, char **av)
 	if (ac != 2)
 		error("wrong number of arguments");
 	ft_putstr_fd(1, ">>> FdF: setting up...\n");
-	setup(&mlx);
+	mlx_setup(&mlx);
 	get_data(av[1], &data);
 	ft_putstr_fd(1, ">>> FdF: rendering...\n");
 
 	draw_map(mlx, data);
-	
+
 	ft_putstr_fd(1, ">>> FdF: all done ! :)\n");
 	ft_memdel_map(data.map);
 	mlx_key_hook(mlx.win_ptr, &esc_exit, &mlx);
