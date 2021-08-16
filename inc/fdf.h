@@ -11,15 +11,18 @@
 # include "libft/libft.h"
 # include "minilibx-linux/mlx.h"
 
-# define WIN_W 800
-# define WIN_H 500
+# define WIN_W 1000
+# define WIN_H 1000
+
 # define ESC 0xff1b
 #define LEFT                          0xff51  /* Move left, left arrow */
 #define UP                            0xff52  /* Move up, up arrow */
 #define RIGHT                         0xff53  /* Move right, right arrow */
 #define DOWN                          0xff54  /* Move down, down arrow */
-
+#define BSP                     0xff08  /* Back space, back char */
+#define TAB                           0xff09
 # define WHITE 0xFFFFFF
+# define GREEN 0x00FF00
 
 /* vectors and matrices */
 typedef struct s_vec2f {
@@ -59,6 +62,18 @@ enum		e_axis
 	__TOTAL_ROT
 };
 
+typedef struct s_bres
+{
+	int			ax;
+	int			bx;
+	int			ay;
+	int			by;
+	int			err_2;
+	int			err;
+	size_t		i;
+	t_vec2i		d;
+}		t_bres;
+
 typedef struct s_mlx
 {
 	void	*mlx_ptr;
@@ -69,9 +84,10 @@ typedef struct s_mlx
 
 typedef struct s_data
 {
-	t_vec3f	**map;
+	t_vec3f	*map;
 	int		map_width;
 	int		map_height;
+	int		map_len;
 	int		min_z;
 	int		max_z;
 }		t_data;
@@ -83,18 +99,19 @@ typedef struct s_env
 }		t_env;
 
 int		esc_exit(t_mlx *mlx);
-void	ft_memdel_map(t_vec3f **array);
+void	ft_memdel_map(t_vec3f *array);
 int		handle_events(int keycode, void *env);
 void	error(char *err_str);
 
 void	get_data(char *source_file, t_data *data);
 void	check_max_width(int *width, char *line);
-void	check_for_dents(char **data, t_vec3f ***map);
+void	check_for_dents(char **data, t_vec3f **map);
 int	get_elem_nb(char *str);
 
 t_vec3f	scalev(t_vec3f a, t_data data);
 void	xy_to_iso(t_vec3f *a, t_vec3f *b);
-void	draw_map(t_mlx mlx, t_data data);
+//void	draw_map(t_mlx mlx, t_data data);
+void	draw_map(t_env *env);
 
 /* UTILS */
 float	fclampf(float value, float min, float max);

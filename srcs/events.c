@@ -1,22 +1,58 @@
 #include "../inc/fdf.h"
 
+int	esc_exit(t_mlx *mlx)
+{
+		ft_putstr_fd(1, ">>> FdF: cleaning up and exiting...\n");
+		mlx_destroy_window(mlx->mlx_ptr, mlx->win_ptr);
+		mlx_destroy_display(mlx->mlx_ptr);
+		free(mlx->mlx_ptr);
+		exit(EXIT_SUCCESS);
+	return (1);
+}
+
+static void	zoom_in(t_data *data)
+{
+	int i;
+	t_vec3f tmp;
+
+	i = 0;
+	while (i < data->map_len)
+	{
+		tmp.x = data->map[i].x * 1.5;
+		tmp.y = data->map[i].y * 1.5;
+		tmp.z = data->map[i].z * 1.5;
+		data->map[i] = tmp;
+		i++;
+	}
+}
+
+static void	zoom_out(t_data *data)
+{
+	int i;
+	t_vec3f tmp;
+
+	i = 0;
+	while (i < data->map_len)
+	{
+		tmp.x = data->map[i].x * 0.5;
+		tmp.y = data->map[i].y * 0.5;
+		tmp.z = data->map[i].z * 0.5;
+		data->map[i] = tmp;
+		i++;
+	}
+}
+
 static	void	move_x(t_data *data, int keycode)
 {
 	int i;
-	int j;
 
 	i = 0;
-	while (i < data->map_height)
+	while (i < data->map_len)
 	{
-		j = 0;
-		while (j < data->map_width)
-		{
-			if (keycode == LEFT)
-				data->map[i][j].x -= 1;
-			else
-				data->map[i][j].x += 1;
-			j++;
-		}
+		if (keycode == LEFT)
+			data->map[i].x -= 50;
+		else
+			data->map[i].x += 50;
 		i++;
 	}
 }
@@ -24,20 +60,14 @@ static	void	move_x(t_data *data, int keycode)
 static	void	move_y(t_data *data, int keycode)
 {
 	int i;
-	int j;
 
 	i = 0;
-	while (i < data->map_height)
+	while (i < data->map_len)
 	{
-		j = 0;
-		while (j < data->map_width)
-		{
-			if (keycode == UP)
-				data->map[i][j].y -= 1;
-			else
-				data->map[i][j].y += 1;
-			j++;
-		}
+		if (keycode == UP)
+			data->map[i].y -= 50;
+		else
+			data->map[i].y += 50;
 		i++;
 	}
 }
@@ -53,14 +83,12 @@ void	handle_moves(t_data *data, int keycode)
 		move_x(data, keycode);
 }
 
-int	esc_exit(t_mlx *mlx)
+void	handle_zoom(t_data *data, int keycode)
 {
-		ft_putstr_fd(1, ">>> FdF: cleaning up and exiting...\n");
-		mlx_destroy_window(mlx->mlx_ptr, mlx->win_ptr);
-		mlx_destroy_display(mlx->mlx_ptr);
-		free(mlx->mlx_ptr);
-		exit(EXIT_SUCCESS);
-	return (1);
+	if (keycode == TAB)
+		zoom_in(data);
+	if (keycode == BSP)
+		zoom_out(data);
 }
 
 int	handle_events(int keycd, void *env)
@@ -71,11 +99,13 @@ int	handle_events(int keycd, void *env)
 	mlx_clear_window(env_ptr->mlx.mlx_ptr, env_ptr->mlx.win_ptr);
 	if (keycd == LEFT || keycd == RIGHT || keycd == UP || keycd == DOWN)
 		handle_moves(&env_ptr->data, keycd);
+	if (keycd == TAB || keycd == BSP)
+		handle_zoom(&env_ptr->data, keycd);
 	if (keycd == ESC)
 	{
 		ft_memdel_map(env_ptr->data.map);
 		esc_exit(&env_ptr->mlx);
 	}
-	draw_map(env_ptr->mlx, env_ptr->data);
+	draw_map(env_ptr);
 	return (1);
 }

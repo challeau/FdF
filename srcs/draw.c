@@ -1,115 +1,81 @@
 #include "../inc/fdf.h"
 
-static void	draw_line_down(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
-{
-	t_vec3f	from;
-	t_vec3f	to;
-	t_vec2f	delta;
 
-	from = scalev(a, data);
-	to = scalev(b, data);
-	delta.x = (b.x - a.x);
-	delta.y = (b.y - a.y);
-	if (b.x <= data.map_width)
+static void	execute_loop(t_bres draw_var, t_env *env, int clr)
+{
+	while (true)
 	{
-		while (from.x <= to.x)
+//		printf("%i %i\n", draw_var.ax, draw_var.ay);
+		mlx_pixel_put(env->mlx.mlx_ptr, env->mlx.win_ptr,
+			      draw_var.ax, draw_var.ay, clr);
+		draw_var.err_2 = draw_var.err;
+		if (draw_var.ax == draw_var.bx && draw_var.ay == draw_var.by)
+			break ;
+		if (draw_var.err_2 > -draw_var.d.x)
 		{
-			mlx_pixel_put(mlx.mlx_ptr, mlx.win_ptr,
-				      from.x, from.y, WHITE);
-			from.x += delta.x;
-			from.y += delta.y;
+			draw_var.err -= draw_var.d.y;
+			if (draw_var.ax < draw_var.bx)
+				draw_var.ax++;
+			else if (draw_var.ax > draw_var.bx)
+				draw_var.ax--;
+		}
+		if (draw_var.err_2 < draw_var.d.y)
+		{
+			draw_var.err += draw_var.d.x;
+			if (draw_var.ay < draw_var.by)
+				draw_var.ay++;
+			else if (draw_var.ay > draw_var.by)
+				draw_var.ay--;
 		}
 	}
 }
 
-static void	draw_line_up(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
+static void	draw_line(t_env *env, t_vec3f *a, t_vec3f *b, int color)
 {
-	t_vec3f	from;
-	t_vec3f	to;
-	t_vec2f	delta;
+	t_bres bres;
 
-	from = scalev(a, data);
-	to = scalev(b, data);
-	delta.x = (b.x - a.x);
-	delta.y = (b.y - a.y);
-	if (b.y <= data.map_height)
-	{
-		while (from.y <= to.y)
-		{
-			mlx_pixel_put(mlx.mlx_ptr, mlx.win_ptr,
-				      from.x, from.y, WHITE);
-			from.x += delta.x;
-			from.y += delta.y;
-		}
-	}
-			printf("down\n");
-
-}
-
-static void	draw_line(t_mlx mlx, t_data data, t_vec3f a, t_vec3f b)
-{
-	xy_to_iso(&a, &b);
-	if (a.x == b.x && a.y == b.y && a.z == b.z)
+	xy_to_iso(a, b);
+	a->z = a->z / 1000 + 10;
+	b->z = b->z / 1000 + 10;
+	if (a->z < 1 || b->z < 1)
 		return ;
-	if (fabs(b.y - a.y) < fabs(b.x - a.x))
-	{
-		if (a.x > b.x)
-			draw_line_down(mlx, data, b, a);
-		else
-			draw_line_down(mlx, data, a, b);
-	}
-	else
-	{
-		if (a.y > b.y)
-			draw_line_up(mlx, data, b, a);
-		else
-			draw_line_up(mlx, data, a, b);
-	}
-}
-
-/*
-** smaller offset == higher peak
-*/
-static t_vec3f	give_depth(t_vec3f a, t_data data)
-{
-	t_vec3f	res;
-	int		offset;
-
-	offset = data.max_z / 2;
-	if (data.max_z <= 1)
-		offset = 10;
-	res.x = a.x + cos(a.z / offset);
-	res.y = a.y + cos(a.z / offset);
-	res.z = a.z;
-	return (res);
+	bres.ax = (int)roundf(a->x / a->z) + WIN_W / 2;
+	bres.bx = (int)roundf(b->x / b->z) + WIN_W / 2;
+	bres.ay = (int)roundf(a->y / a->z) + WIN_H / 2;
+	bres.by = (int)roundf(b->y / b->z) + WIN_H / 2;
+	if ((bres.ax < 0 || bres.ax > WIN_W || bres.ay < 0 ||
+		bres.ay > WIN_W) && (bres.bx < 0 || bres.bx > WIN_W ||
+					 bres.by < 0 || bres.by > WIN_H / 2))
+		return ;
+	bres.i = 0;
+	bres.d.x = abs(bres.bx - bres.ax);
+	bres.d.y = abs(bres.by - bres.ay);
+	bres.err = ((bres.d.x > bres.d.y ? bres.d.x : -bres.d.y)) >> 1;
+	execute_loop(bres, env, color);
 }
 
 
-void	draw_map(t_mlx mlx, t_data data)
+void	draw_map(t_env *env)
 {
-	t_vec2i	p;
+	int	i;
 	t_vec3f	a;
 	t_vec3f	b;
 
-	p = (t_vec2i){0, 0};
-	while (p.x < data.map_height)
+	i = 0;
+	while (i < env->data.map_len)
 	{
-		p.y = 0;
-		while (p.y < data.map_width)
+		if (i + env->data.map_width < env->data.map_len)   // draw down
 		{
-			a = give_depth(data.map[p.x][p.y], data);
-			if (p.y < data.map_width - 1)
-			{
-				b = give_depth(data.map[p.x][p.y + 1], data);
-				draw_line(mlx, data, a, b);
-			}
-			if (p.x < data.map_height - 1)
-			{
-				b = give_depth(data.map[p.x + 1][p.y], data);
-				draw_line(mlx, data, a, b);
-			}
-			p.y++;
+			a = env->data.map[i];
+			b = env->data.map[i + env->data.map_width];
+				draw_line(env, &a, &b, WHITE);
 		}
-		p.x++;
+		if (i % env->data.map_width != env->data.map_width - 1)// draw right
+		{
+			a = env->data.map[i];
+			b = env->data.map[i + 1];
+				draw_line(env, &a, &b, WHITE);
+		}
+		i++;
 	}
 }

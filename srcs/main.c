@@ -1,16 +1,7 @@
 #include "../inc/fdf.h"
 
-void	ft_memdel_map(t_vec3f **array)
+void	ft_memdel_map(t_vec3f *array)
 {
-	t_vec3f	**array_ptr;
-
-	array_ptr = array;
-	while (*array_ptr != NULL)
-	{
-		free(*array_ptr);
-		*array_ptr = NULL;
-		array_ptr++;
-	}
 	free(array);
 	array = NULL;
 }
@@ -18,38 +9,11 @@ void	ft_memdel_map(t_vec3f **array)
 void	xy_to_iso(t_vec3f *a, t_vec3f *b)
 {
 	t_vec3f tmp = *a;
-	a->x = (tmp.x - tmp.y) * cosf(0.5);
+	a->x = (tmp.x - tmp.y) * cosf(0.34);
+	a->y = (tmp.x + tmp.y) * cosf(0.34) - a->z;
 	tmp = *b;
-	b->x = (tmp.x - tmp.y) * cosf(0.5);
-}
-
-void	iso_to_screen(t_vec3f *a, int scale1, int scale2)
-{
-	t_vec3f tmp = *a;
-	a->x = tmp.x * (scale1 / 2) / scale2;
-	a->y = tmp.y * (scale1 / 2) / scale2;
-}
-
-t_vec3f	scalev(t_vec3f a, t_data data)
-{
-	t_vec3f res = a;
-
-	iso_to_screen(&res, WIN_W, data.map_width);
-//	res.x += WIN_W / 2;
-	/* if (data.map_width > data.map_height) */
-	/* { */
-	/* 	res.y += 50; */
-	/* } */
-	/* else */
-	/* { */
-	/* 	int tile_len = WIN_H / data.map_height; */
-	/* 	iso_to_screen(&res, WIN_H, data.map_height); */
-	/* 	if (data.map_height % 2 == 0) */
-	/* 		res.x += WIN_W / 2; */
-	/* 	else */
-	/* 		res.x += WIN_W / 2 - 2 * tile_len; */
-	/* } */
-	return (res);
+	b->x = (tmp.x - tmp.y) * cosf(0.34);
+	b->y = (tmp.x + tmp.y) * cosf(0.34) - b->z;
 }
 
 static bool	mlx_setup(t_mlx *mlx)
@@ -78,7 +42,7 @@ int	main(int ac, char **av)
 	get_data(av[1], &data);
 	env.data = data;
 	env.mlx = mlx;
-	draw_map(mlx, data);
+	draw_map(&env);
 	mlx_key_hook(mlx.win_ptr, &handle_events, &env);
 	mlx_loop(mlx.mlx_ptr);
 	return (0);

@@ -28,7 +28,7 @@ void	check_max_width(int *width, char *line)
 		*width = buff;
 }
 
-void	check_for_dents(char **data, __attribute__((unused))t_vec3f ***map)
+void	check_for_dents(char **data, t_vec3f **map)
 {
 	int i;
 	int j;
@@ -41,9 +41,9 @@ void	check_for_dents(char **data, __attribute__((unused))t_vec3f ***map)
 	{
 		j = 0;
 		buff = get_elem_nb(data[i]);
-		while (buff + j< width)
+		while (buff + j < width)
 		{
-			map[0][i][buff + j] = map[0][i][buff - 1];
+			map[buff + j + (i * width)] = map[buff - 1 + j + (i * width)];
 			j++;
 		}
 		i++;
