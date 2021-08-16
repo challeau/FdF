@@ -8,12 +8,14 @@ void	ft_memdel_map(t_vec3f *array)
 
 void	xy_to_iso(t_vec3f *a, t_vec3f *b)
 {
-	t_vec3f tmp = *a;
+	t_vec3f	tmp;
+
+	tmp = *a;
 	a->x = (tmp.x - tmp.y) * cosf(0.34);
-	a->y = (tmp.x + tmp.y) * cosf(0.34) - a->z;
+	a->y = (tmp.x + tmp.y) * cosf(0.34) - fabs(a->z);
 	tmp = *b;
 	b->x = (tmp.x - tmp.y) * cosf(0.34);
-	b->y = (tmp.x + tmp.y) * cosf(0.34) - b->z;
+	b->y = (tmp.x + tmp.y) * cosf(0.34) - fabs(b->z);
 }
 
 static bool	mlx_setup(t_mlx *mlx)
@@ -25,7 +27,7 @@ static bool	mlx_setup(t_mlx *mlx)
 	if (mlx->win_ptr == NULL)
 	{
 		free(mlx->mlx_ptr);
-		return(false);
+		return (false);
 	}
 	return (true);
 }
@@ -36,6 +38,7 @@ int	main(int ac, char **av)
 	t_data		data;
 	t_env		env;
 
+	display_ctrls();
 	if (ac != 2)
 		error("wrong number of arguments");
 	mlx_setup(&mlx);

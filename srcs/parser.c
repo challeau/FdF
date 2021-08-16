@@ -1,69 +1,36 @@
 #include "../inc/fdf.h"
 
-/* static void	z_scale(t_vec3f **map, t_data data) */
-/* { */
-/* 	int	i; */
-
-/* 	i = 0; */
-/* 	while (i < data.map_len) */
-/* 	{ */
-/* 		map[0][i].z += -data.min_z; */
-/* 		i++; */
-/* 	} */
-/* } */
-
-/* static void	get_z_limits(t_vec3f *map, t_data *data) */
-/* { */
-/* 	int	i; */
-/* 	int	max_buff; */
-/* 	int	min_buff; */
-
-/* 	i = 0; */
-/* 	max_buff = map[0].z; */
-/* 	min_buff = map[0].z; */
-/* 	while (i < data->map_len) */
-/* 	{ */
-/* 		if (map[i].z > max_buff) */
-/* 			max_buff = map[i].z; */
-/* 		if (map[i].z < min_buff) */
-/* 			min_buff = map[i].z; */
-/* 		i++; */
-/* 	} */
-/* 	data->max_z = max_buff; */
-/* 	data->min_z = min_buff; */
-/* 	if (min_buff < 0) */
-/* 		z_scale(&map, *data); */
-/* 	data->min_z = 0; */
-/* } */
-
-static t_vec3f	*assign_map(t_data *data, char **file_content)
+static void	assign_vec(t_data *data, int index, t_vec3f a)
 {
-	int		i;
-	int		j;
-	char	**tmp;
-	t_vec3f	*map = (t_vec3f *)malloc((data->map_height * data->map_width + 1) * sizeof(t_vec3f));
+	data->map[index].x = a.x * 20 - data->map_width * 10;
+	data->map[index].y = a.y * 20 - data->map_height * 10;
+	data->map[index].z = a.z * 2.5;
+}
 
-	i = 0;
-	while (file_content[i] && *file_content[i] != '\0')
+static void	assign_map(t_data *data, char *file_content)
+{
+	static int	i = 0;
+	int			j;
+	char		**tmp;
+	t_vec2f		last;
+
+	j = 0;
+	tmp = ft_split(file_content, ' ');
+	while (tmp[j] && *tmp[j] != '\0')
 	{
-		j = 0;
-		tmp = ft_split(file_content[i], ' ');
-		while (tmp[j] && *tmp[j] != '\0')
-		{
-			map[j + (i * data->map_width)].x = j
-				* 20 - data->map_width * 10;
-			map[j + (i * data->map_width)].y = i
-				* 20 - data->map_height * 10;
-			map[j + (i * data->map_width)].z = ft_atoi(tmp[j])
-				* 2.5;
-			j++;
-		}
-		ft_memdel_strptr(tmp);
-		i++;
+		assign_vec(data, j + (i * data->map_width),
+			(t_vec3f){j, i, ft_atoi(tmp[j])});
+		last = (t_vec2f){j, ft_atoi(tmp[j])};
+		j++;
 	}
-//	check_for_dents(file_content, &data->map);
-	ft_memdel_strptr(file_content);
-	return (map);
+	while (j < data->map_width)
+	{
+		assign_vec(data, j + (i * data->map_width),
+			(t_vec3f){last.x, i, last.y});
+		j++;
+	}
+	ft_memdel_strptr(tmp);
+	i++;
 }
 
 static char	**get_file_contents(int fd, int *width, int *height)
@@ -76,14 +43,14 @@ static char	**get_file_contents(int fd, int *width, int *height)
 	i = 0;
 	ret = get_next_line(fd, &line);
 	content = (char **)malloc(1000 * sizeof(char *));
+	if (!content)
+		error("allocation error");
 	while (ret >= 0 && i < 999)
 	{
 		if (*line != '\0')
 		{
-			check_max_width(width, line);
-			*height += 1;
+			check_dimensions(width, height, line);
 			content[i++] = ft_strdup(line);
-			content[i] = NULL;
 		}
 		ft_memdel(line);
 		if (ret == 0)
@@ -106,11 +73,19 @@ void	get_data(char *source_file, t_data *data)
 	height = 0;
 	width = 0;
 	file_content = get_file_contents(fd, &width, &height);
+	file_content[height] = NULL;
 	close(fd);
 	data->map_width = width;
 	data->map_height = height;
 	data->map_len = height * width;
-	data->map = assign_map(data, file_content);
-
-//	get_z_limits(map, data);
+	data->map = (t_vec3f *)malloc((data->map_len + 1) * sizeof(t_vec3f));
+	if (!data->map)
+		error("allocation error");
+	while (*file_content)
+	{
+		assign_map(data, *file_content);
+		file_content++;
+	}
+	ft_memdel_strptr(file_content - height);
+	get_z_limits(data->map, data);
 }

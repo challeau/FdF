@@ -2,49 +2,17 @@
 
 int	esc_exit(t_mlx *mlx)
 {
-		ft_putstr_fd(1, ">>> FdF: cleaning up and exiting...\n");
-		mlx_destroy_window(mlx->mlx_ptr, mlx->win_ptr);
-		mlx_destroy_display(mlx->mlx_ptr);
-		free(mlx->mlx_ptr);
-		exit(EXIT_SUCCESS);
+	ft_putstr_fd(1, ">>> FdF: cleaning up and exiting...\n");
+	mlx_destroy_window(mlx->mlx_ptr, mlx->win_ptr);
+	mlx_destroy_display(mlx->mlx_ptr);
+	free(mlx->mlx_ptr);
+	exit(EXIT_SUCCESS);
 	return (1);
-}
-
-static void	zoom_in(t_data *data)
-{
-	int i;
-	t_vec3f tmp;
-
-	i = 0;
-	while (i < data->map_len)
-	{
-		tmp.x = data->map[i].x * 1.5;
-		tmp.y = data->map[i].y * 1.5;
-		tmp.z = data->map[i].z * 1.5;
-		data->map[i] = tmp;
-		i++;
-	}
-}
-
-static void	zoom_out(t_data *data)
-{
-	int i;
-	t_vec3f tmp;
-
-	i = 0;
-	while (i < data->map_len)
-	{
-		tmp.x = data->map[i].x * 0.5;
-		tmp.y = data->map[i].y * 0.5;
-		tmp.z = data->map[i].z * 0.5;
-		data->map[i] = tmp;
-		i++;
-	}
 }
 
 static	void	move_x(t_data *data, int keycode)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < data->map_len)
@@ -59,7 +27,7 @@ static	void	move_x(t_data *data, int keycode)
 
 static	void	move_y(t_data *data, int keycode)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < data->map_len)
@@ -81,14 +49,6 @@ void	handle_moves(t_data *data, int keycode)
 		move_y(data, keycode);
 	if (keycode == LEFT || keycode == RIGHT)
 		move_x(data, keycode);
-}
-
-void	handle_zoom(t_data *data, int keycode)
-{
-	if (keycode == TAB)
-		zoom_in(data);
-	if (keycode == BSP)
-		zoom_out(data);
 }
 
 int	handle_events(int keycd, void *env)

@@ -15,12 +15,13 @@
 # define WIN_H 1000
 
 # define ESC 0xff1b
-#define LEFT                          0xff51  /* Move left, left arrow */
-#define UP                            0xff52  /* Move up, up arrow */
-#define RIGHT                         0xff53  /* Move right, right arrow */
-#define DOWN                          0xff54  /* Move down, down arrow */
-#define BSP                     0xff08  /* Back space, back char */
-#define TAB                           0xff09
+# define LEFT 0xff51
+# define UP 0xff52
+# define RIGHT 0xff53
+# define DOWN 0xff54
+# define BSP 0xff08
+# define TAB 0xff09
+
 # define WHITE 0xFFFFFF
 # define GREEN 0x00FF00
 
@@ -94,28 +95,31 @@ typedef struct s_data
 
 typedef struct s_env
 {
-	t_mlx mlx;
-	t_data data;
+	t_mlx	mlx;
+	t_data	data;
 }		t_env;
 
-int		esc_exit(t_mlx *mlx);
-void	ft_memdel_map(t_vec3f *array);
-int		handle_events(int keycode, void *env);
-void	error(char *err_str);
-
+/* PARSER */
 void	get_data(char *source_file, t_data *data);
-void	check_max_width(int *width, char *line);
-void	check_for_dents(char **data, t_vec3f **map);
-int	get_elem_nb(char *str);
+void	check_dimensions(int *width, int *height, char *line);
+int		get_elem_nb(char *str);
+void	get_z_limits(t_vec3f *map, t_data *data);
+void	z_scale(t_vec3f **map, t_data data);
 
-t_vec3f	scalev(t_vec3f a, t_data data);
+/* EVENTS */
+int		esc_exit(t_mlx *mlx);
+int		handle_events(int keycode, void *env);
+void	handle_zoom(t_data *data, int keycode);
+
+/* MESSAGES */
+void	error(char *err_str);
+void	display_ctrls(void);
+
+/* DRAW */
 void	xy_to_iso(t_vec3f *a, t_vec3f *b);
-//void	draw_map(t_mlx mlx, t_data data);
 void	draw_map(t_env *env);
 
-/* UTILS */
-float	fclampf(float value, float min, float max);
-int		min(int a, int b);
-int		max(int a, int b);
+/* OTHERS */
+void	ft_memdel_map(t_vec3f *array);
 
 #endif
