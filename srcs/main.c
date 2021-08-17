@@ -22,13 +22,10 @@ static bool	mlx_setup(t_mlx *mlx)
 {
 	mlx->mlx_ptr = mlx_init();
 	if (mlx->mlx_ptr == NULL)
-		error("initialization error");
+		return (false);
 	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, WIN_W, WIN_H, "FdF");
 	if (mlx->win_ptr == NULL)
-	{
-		free(mlx->mlx_ptr);
 		return (false);
-	}
 	return (true);
 }
 
@@ -40,9 +37,13 @@ int	main(int ac, char **av)
 
 	display_ctrls();
 	if (ac != 2)
-		error("wrong number of arguments");
-	mlx_setup(&mlx);
-	get_data(av[1], &data);
+	{
+		ft_putstr_fd(1, "wrong number of arguments\n");
+		return (0);
+	}
+	if (mlx_setup(&mlx) == false)
+		error("initialization issue", &mlx);
+	get_data(av[1], &data, &mlx);
 	env.data = data;
 	env.mlx = mlx;
 	draw_map(&env);

@@ -33,7 +33,7 @@ static void	assign_map(t_data *data, char *file_content)
 	i++;
 }
 
-static char	**get_file_contents(int fd, int *width, int *height)
+static char	**get_file_contents(int fd, int *width, int *height, t_mlx *mlx)
 {
 	int		i;
 	int		ret;
@@ -44,7 +44,7 @@ static char	**get_file_contents(int fd, int *width, int *height)
 	ret = get_next_line(fd, &line);
 	content = (char **)malloc(1000 * sizeof(char *));
 	if (!content)
-		error("allocation error");
+		error("allocation error", mlx);
 	while (ret >= 0 && i < 999)
 	{
 		if (*line != '\0')
@@ -58,11 +58,14 @@ static char	**get_file_contents(int fd, int *width, int *height)
 		ret = get_next_line(fd, &line);
 	}
 	if (ret == -1)
-		error("couldn't open your file.");
+	{
+		free(content);
+		error("couldn't open your file.", mlx);
+	}
 	return (content);
 }
 
-void	get_data(char *source_file, t_data *data)
+void	get_data(char *source_file, t_data *data, t_mlx *mlx)
 {
 	int		fd;
 	int		width;
@@ -72,7 +75,7 @@ void	get_data(char *source_file, t_data *data)
 	fd = open(source_file, O_RDONLY);
 	height = 0;
 	width = 0;
-	file_content = get_file_contents(fd, &width, &height);
+	file_content = get_file_contents(fd, &width, &height, mlx);
 	file_content[height] = NULL;
 	close(fd);
 	data->map_width = width;
@@ -80,7 +83,7 @@ void	get_data(char *source_file, t_data *data)
 	data->map_len = height * width;
 	data->map = (t_vec3f *)malloc((data->map_len + 1) * sizeof(t_vec3f));
 	if (!data->map)
-		error("allocation error");
+		error("allocation error", mlx);
 	while (*file_content)
 	{
 		assign_map(data, *file_content);

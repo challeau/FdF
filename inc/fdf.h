@@ -100,7 +100,7 @@ typedef struct s_env
 }		t_env;
 
 /* PARSER */
-void	get_data(char *source_file, t_data *data);
+void	get_data(char *source_file, t_data *data, t_mlx *mlx);
 void	check_dimensions(int *width, int *height, char *line);
 int		get_elem_nb(char *str);
 void	get_z_limits(t_vec3f *map, t_data *data);
@@ -112,7 +112,7 @@ int		handle_events(int keycode, void *env);
 void	handle_zoom(t_data *data, int keycode);
 
 /* MESSAGES */
-void	error(char *err_str);
+void	error(char *err_str, t_mlx *mlx);
 void	display_ctrls(void);
 
 /* DRAW */

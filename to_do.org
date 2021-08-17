@@ -9,15 +9,15 @@
 |----------------+---------------------------+--------+-----|
 | draw grid      |                           | DONE   | Y   |
 |----------------+---------------------------+--------+-----|
-| add depth      | positive values ok        | y      | Y   |
+| add depth      | positive values ok        | DONE   | Y   |
 |                | neg values ok             | y      |     |
 |                | make depth better         | y      |     |
 |----------------+---------------------------+--------+-----|
-| norm           | except main               | y      |     |
+| norm           | except main               | DONE   | Y   |
 |----------------+---------------------------+--------+-----|
-| projection     | mvp ok                    | y      |     |
-|                | align in win              |        |     |
+| projection     | mvp ok                    | DONE   | Y   |
+|                | align in win              | y      |     |
 |----------------+---------------------------+--------+-----|
-| dumb questions | is make re supposed to    |        |     |
+| dumb questions | is make re supposed to    | yes :) | Y   |
 |                | error if no previous run? |        |     |
 |----------------+---------------------------+--------+-----|
