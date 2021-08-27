@@ -9,7 +9,7 @@ represents the depth (z).
 
 Usage:
 - run ```make``` to create executable.
-- run the program with ```./fdf [valid_map_file]```.
+- run the program with ```./fdf <valid_map_file>```.
 - in the program:
     - use TAB to zoom in.
     - use BACKSPACE to zoom out.
