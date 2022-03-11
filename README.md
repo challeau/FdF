@@ -3,7 +3,8 @@
 
 A simple wireframe graph generator with isometric projection.<br/>
 The graph is generated according to a .fdf map file containing a matrix of integers.
-An interger's position in the file represents its coordinates (x,y) and its value represents the depth (z).
+An interger's position in the file represents its coordinates (x,y) and its value represents the depth (z).<br/>
+_Examples at the bottom._
 
 ## Dependencies:
 - 42's [minilibx](https://github.com/42Paris/minilibx-linux), install it in the inc/ directory.
@@ -38,5 +39,7 @@ La position d'un entier dans le fichier représente ses coordonnées (x,y) et sa
     -utiliser les flèches pour déplacer le rendu.
     -utiliser ESC pour quitter la fenêtre.
 
-<img src='/others/fdf-42.png' width=300px>
-<img src='/others/fdf-mars.png' width=300px>
+<p align='center'>
+<img src='/others/fdf-42.png' width='400px'>
+<img src='/others/fdf-mars.png' height='400px'>
+<p/>
